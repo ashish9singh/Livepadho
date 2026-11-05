@@ -1,233 +1,490 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BSLC Bihar - Live Stream Dashboard</title>
-    <style>
-        /* Modern CSS Variables & Reset */
-        :root {
-            --bg-color: #0f0f0f;
-            --card-bg: #1f1f1f;
-            --text-color: #ffffff;
-            --accent-color: #ff0000;
-            --accent-hover: #cc0000;
-            --text-secondary: #aaaaaa;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<title>BSLC Bihar - Live Classes Dashboard</title>
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 20px;
-            min-height: 100vh;
-        }
+<style>
+:root {
+    --bg: #101010;
+    --card: #202020;
+    --text: #ffffff;
+    --muted: #aaaaaa;
+    --red: #ff3030;
+    --border: #353535;
+}
 
-        /* Header Styling */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #333;
-            margin-bottom: 30px;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
 
-        .logo-container h1 {
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+body {
+    background: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    min-height: 100vh;
+}
 
-        .live-dot {
-            width: 12px;
-            height: 12px;
-            background-color: var(--accent-color);
-            border-radius: 50%;
-            display: inline-block;
-            animation: pulse 1.5s infinite;
-        }
+/* HEADER */
 
-        .controls-btn {
-            background-color: var(--card-bg);
-            color: var(--text-color);
-            border: 1px solid #444;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--border);
+}
 
-        .controls-btn:hover {
-            background-color: #333;
-            border-color: var(--text-secondary);
-        }
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        /* Responsive Streams Grid */
-        .streams-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 24px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+.logo h1 {
+    font-size: 22px;
+}
 
-        @media (max-width: 500px) {
-            .streams-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+.live-dot {
+    width: 12px;
+    height: 12px;
+    background: red;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
 
-        /* Stream Card Elements */
-        .stream-card {
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-        }
+@keyframes pulse {
+    50% { opacity: .35; }
+}
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
-            background-color: #000;
-        }
+.header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
+button {
+    cursor: pointer;
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 10px 15px;
+    color: white;
+    background: #292929;
+    transition: .2s;
+}
 
-        .card-details {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+button:hover {
+    background: #444;
+}
 
-        .stream-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-color);
-        }
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
 
-        .stream-meta {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* DASHBOARD INFO */
 
-        .card-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 5px;
-        }
+.dashboard-info {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    color: var(--muted);
+    font-size: 14px;
+}
 
-        .card-actions .controls-btn {
-            flex: 1;
-            text-align: center;
-        }
+.live-label {
+    color: #ff4444;
+    font-weight: bold;
+}
 
-        /* Cinema Mode State via JS */
-        body.cinema-mode .streams-grid {
-            grid-template-columns: 1fr;
-            max-width: 1000px;
-        }
+/* VIDEO GRID */
 
-        /* Keyframes */
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.6; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.6; }
-        }
-    </style>
+.streams-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    max-width: 1600px;
+    margin: auto;
+}
+
+.stream-card {
+    background: var(--card);
+    border-radius: 9px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+}
+
+.video-container iframe {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: none;
+    top: 0;
+    left: 0;
+}
+
+.card-details {
+    padding: 15px;
+}
+
+.stream-title {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 9px;
+}
+
+.stream-meta {
+    color: var(--muted);
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.card-actions button {
+    flex: 1;
+}
+
+/* EMPTY STATE */
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    background: var(--card);
+    border-radius: 8px;
+}
+
+/* CINEMA MODE */
+
+body.cinema-mode .streams-grid {
+    grid-template-columns: 1fr;
+    max-width: 1100px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 750px) {
+    .streams-grid {
+        grid-template-columns: 1fr;
+    }
+
+    header {
+        align-items: flex-start;
+    }
+
+    .logo h1 {
+        font-size: 18px;
+    }
+}
+
+footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    color: var(--muted);
+    font-size: 13px;
+}
+</style>
 </head>
+
 <body>
 
-    <header>
-        <div class="logo-container">
-            <h1><span class="live-dot"></span> Bihar School Live Classes Portal</h1>
-        </div>
-        <button class="controls-btn" id="toggleCinema">Toggle Large View</button>
-    </header>
+<header>
 
-    <main class="streams-grid">
-        <!-- Stream Card 1: Main Gateway (Fixed URL Format) -->
-        <div class="stream-card" id="stream-bslc">
-            <div class="video-container">
-                <!-- Corrected URL structure to bypass connect errors -->
-                <iframe 
-                    id="bslc-iframe"
-                    src="https://youtube.com" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen>
-                </iframe>
-            </div>
-            <div class="card-details">
-                <div class="stream-title">BSLC Live Broadcast Feed</div>
-                <div class="stream-meta">
-                    <span>Channel: @BSLCBihar</span>
-                    <span>Status: Dynamic Live Tracking</span>
-                </div>
-                <div class="card-actions">
-                    <button class="controls-btn" onclick="refreshStream('bslc-iframe')">🔄 Reload Player</button>
-                </div>
-            </div>
-        </div>
+    <div class="logo">
+        <span class="live-dot"></span>
+        <h1>Bihar School Live Classes Portal</h1>
+    </div>
 
-        <!-- Secondary Slot Ready to use -->
-        <div class="stream-card">
-            <div class="video-container" style="background: #151515; display: flex; align-items: center; justify-content: center; min-height: 253px;">
-               <p style="text-align:center; color: var(--text-secondary);">Secondary Slot Ready</p>
-            </div>
-            <div class="card-details">
-                <div class="stream-title">Optional Backup Feed</div>
-                <div class="stream-meta">
-                    <span>No channel mapped</span>
-                    <span>Status: Idle</span>
-                </div>
-                <div class="card-actions">
-                    <button class="controls-btn" disabled>No Action</button>
-                </div>
-            </div>
-        </div>
-    </main>
+    <div class="header-actions">
+        <button id="cinemaBtn">
+            Toggle Large View
+        </button>
 
-    <script>
-        // Toggle Layout View (Cinema vs Grid View)
-        const toggleBtn = document.getElementById('toggleCinema');
-        toggleBtn.addEventListener('click', () => {
-            document.body.classList.toggle('cinema-mode');
-            toggleBtn.textContent = document.body.classList.contains('cinema-mode') 
-                ? "Toggle Grid View" 
-                : "Toggle Large View";
-        });
+        <button id="refreshAllBtn">
+            ↻ Refresh All
+        </button>
+    </div>
 
-        // Force reload the iframe element to pick up newly started streams
-        function refreshStream(iframeId) {
-            const iframe = document.getElementById(iframeId);
-            if (iframe) {
-                const currentSrc = iframe.src;
-                iframe.src = ''; // Clear source
-                iframe.src = currentSrc; // Re-assign to force refresh connection
-            }
+</header>
+
+<div class="dashboard-info">
+    <span class="live-label">● LIVE CLASS DASHBOARD</span>
+    <span id="streamCount">Loading streams...</span>
+</div>
+
+<main class="streams-grid" id="streamsGrid">
+
+</main>
+
+<footer>
+    Bihar School Live Classes Portal
+    <br><br>
+    Powered by YouTube
+</footer>
+
+<script>
+
+/* =====================================
+   CONFIGURATION: ADD YOUR LIVE STREAMS
+===================================== */
+
+const streams = [
+
+    {
+        title: "BSLC Live Class - Channel 1",
+        channel: "@BSLCBihar",
+        videoId: "PASTE_VIDEO_ID_1"
+    },
+
+    {
+        title: "BSLC Live Class - Channel 2",
+        channel: "BSLC Bihar",
+        videoId: "PASTE_VIDEO_ID_2"
+    },
+
+    {
+        title: "BSLC Live Class - Channel 3",
+        channel: "BSLC Bihar",
+        videoId: "PASTE_VIDEO_ID_3"
+    },
+
+    {
+        title: "BSLC Live Class - Channel 4",
+        channel: "BSLC Bihar",
+        videoId: "PASTE_VIDEO_ID_4"
+    }
+
+];
+
+
+/* =====================================
+   GENERATE VIDEO CARDS
+===================================== */
+
+const grid = document.getElementById("streamsGrid");
+
+function createStreamCard(stream, index) {
+
+    const card = document.createElement("div");
+    card.className = "stream-card";
+
+    const validId = /^[a-zA-Z0-9_-]{11}$/.test(stream.videoId);
+
+    const videoContainer = document.createElement("div");
+    videoContainer.className = "video-container";
+
+    if (validId) {
+
+        const iframe = document.createElement("iframe");
+
+        iframe.id = "player-" + index;
+
+        iframe.src =
+            "https://www.youtube-nocookie.com/embed/" +
+            encodeURIComponent(stream.videoId) +
+            "?rel=0";
+
+        iframe.title = stream.title;
+        iframe.allow =
+            "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+
+        iframe.allowFullscreen = true;
+
+        videoContainer.appendChild(iframe);
+
+    } else {
+
+        videoContainer.style.display = "flex";
+        videoContainer.style.alignItems = "center";
+        videoContainer.style.justifyContent = "center";
+        videoContainer.style.color = "#aaa";
+
+        videoContainer.textContent =
+            "Add a valid YouTube Video ID to activate this stream.";
+
+    }
+
+    const details = document.createElement("div");
+    details.className = "card-details";
+
+    const title = document.createElement("div");
+    title.className = "stream-title";
+    title.textContent = stream.title;
+
+    const meta = document.createElement("div");
+    meta.className = "stream-meta";
+
+    const channel = document.createElement("span");
+    channel.textContent = "Channel: " + stream.channel;
+
+    const status = document.createElement("span");
+    status.textContent = validId ? "Player Ready" : "Not Configured";
+
+    meta.appendChild(channel);
+    meta.appendChild(status);
+
+    const actions = document.createElement("div");
+    actions.className = "card-actions";
+
+    const reloadBtn = document.createElement("button");
+    reloadBtn.textContent = "↻ Reload Player";
+    reloadBtn.disabled = !validId;
+
+    reloadBtn.addEventListener("click", () => {
+        reloadStream(index);
+    });
+
+    const openBtn = document.createElement("button");
+    openBtn.textContent = "Open on YouTube";
+    openBtn.disabled = !validId;
+
+    openBtn.addEventListener("click", () => {
+        window.open(
+            "https://www.youtube.com/watch?v=" +
+            encodeURIComponent(stream.videoId),
+            "_blank",
+            "noopener"
+        );
+    });
+
+    actions.appendChild(reloadBtn);
+    actions.appendChild(openBtn);
+
+    details.appendChild(title);
+    details.appendChild(meta);
+    details.appendChild(actions);
+
+    card.appendChild(videoContainer);
+    card.appendChild(details);
+
+    return card;
+}
+
+
+/* =====================================
+   LOAD ALL STREAMS
+===================================== */
+
+function loadStreams() {
+
+    grid.replaceChildren();
+
+    const validStreams = streams.filter(stream =>
+        /^[a-zA-Z0-9_-]{11}$/.test(stream.videoId)
+    );
+
+    document.getElementById("streamCount").textContent =
+        validStreams.length + " configured streams / " +
+        streams.length + " total slots";
+
+    if (streams.length === 0) {
+
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No streams configured yet.";
+
+        grid.appendChild(empty);
+        return;
+    }
+
+    streams.forEach((stream, index) => {
+        grid.appendChild(createStreamCard(stream, index));
+    });
+}
+
+
+/* =====================================
+   RELOAD INDIVIDUAL PLAYER
+===================================== */
+
+function reloadStream(index) {
+
+    const iframe = document.getElementById("player-" + index);
+
+    if (iframe) {
+
+        const originalSrc = iframe.src;
+
+        iframe.src = "about:blank";
+
+        setTimeout(() => {
+            iframe.src = originalSrc;
+        }, 100);
+    }
+}
+
+
+/* =====================================
+   REFRESH ALL PLAYERS
+===================================== */
+
+document.getElementById("refreshAllBtn")
+.addEventListener("click", () => {
+
+    streams.forEach((stream, index) => {
+
+        if (/^[a-zA-Z0-9_-]{11}$/.test(stream.videoId)) {
+            reloadStream(index);
         }
-    </script>
+
+    });
+
+});
+
+
+/* =====================================
+   CINEMA MODE
+===================================== */
+
+const cinemaBtn = document.getElementById("cinemaBtn");
+
+cinemaBtn.addEventListener("click", () => {
+
+    document.body.classList.toggle("cinema-mode");
+
+    cinemaBtn.textContent =
+        document.body.classList.contains("cinema-mode")
+        ? "Toggle Grid View"
+        : "Toggle Large View";
+
+});
+
+
+/* =====================================
+   INITIALIZE
+===================================== */
+
+loadStreams();
+
+</script>
+
 </body>
 </html>
